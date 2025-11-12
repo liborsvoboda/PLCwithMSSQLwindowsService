@@ -1,0 +1,7 @@
+
+REM Install Service
+sc create SprayingCabineService binPath=c:\Install\net8.0\SprayingCabineService.exe
+
+
+REM Delete Service
+sc delete SprayingCabineService

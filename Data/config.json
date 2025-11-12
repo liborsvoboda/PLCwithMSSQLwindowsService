@@ -1,0 +1,11 @@
+{
+  "connectionString": "Server=TWSOTRSDB001\\PILM;Database=PILM;User ID=YTWS.SQLA.Spraying.Cabine;Password=PilM_Acc3ss!;TrustServerCertificate=True;",
+  "plcAddress": "10.147.236.110",
+  "rack": 0,
+  "slot": 0,
+  "stepInterval": 500,
+  "barCodeStart": 16,
+  "barCodeLength": 2048,
+  "m3CodeStart": 2064,
+  "m3CodeLength": 2048
+}
