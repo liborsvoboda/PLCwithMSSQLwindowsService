@@ -4,8 +4,8 @@
   "rack": 0,
   "slot": 0,
   "stepInterval": 500,
-  "barCodeStart": 16,
-  "barCodeLength": 2048,
-  "m3CodeStart": 2064,
-  "m3CodeLength": 2048
+  "barCodeStart": 4,
+  "barCodeLength": 10,
+  "m3CodeStart": 260,
+  "m3CodeLength": 50
 }
