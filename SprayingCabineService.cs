@@ -121,6 +121,10 @@ namespace SprayingCabineService
 
                             if (setOK) {
 
+                                // Set Empty M3 code
+                                Buffer = new byte[int.Parse(ConfigSettings.GetValueOrDefault("m3CodeLength"))];
+                                PlcResult = PLCclient.DBWrite(2800, int.Parse(ConfigSettings.GetValueOrDefault("m3CodeStart")), int.Parse(ConfigSettings.GetValueOrDefault("m3CodeLength")), Buffer);
+
                                 // Set M3 code
                                 Buffer = new byte[Encoding.ASCII.GetBytes(m3code).Length];
                                 Buffer = Encoding.ASCII.GetBytes(m3code);
