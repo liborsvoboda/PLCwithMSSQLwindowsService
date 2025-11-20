@@ -18,6 +18,7 @@ namespace SprayingCabineService
         private static S7Client PLCclient = new S7Client();
         private static Dictionary<string, string> ConfigSettings = new Dictionary<string, string>();
         private static byte[] Buffer = new byte[65536];
+        private static byte[] DataBuffer = new byte[65536];
 
         private int processing = 0;
         private string barCode = string.Empty;
@@ -71,8 +72,8 @@ namespace SprayingCabineService
                             WriteLogFile("Process Started: " + ByteArrayToString(Buffer));
 
                             //Load ScanCode
-                            Buffer = new byte[int.Parse(ConfigSettings.GetValueOrDefault("barCodeLength"))];
-                            BarCodeResult = PLCclient.DBRead(2800, int.Parse(ConfigSettings.GetValueOrDefault("barCodeStart")), int.Parse(ConfigSettings.GetValueOrDefault("barCodeLength")), Buffer);
+                            DataBuffer = new byte[int.Parse(ConfigSettings.GetValueOrDefault("barCodeLength"))];
+                            BarCodeResult = PLCclient.DBRead(2800, int.Parse(ConfigSettings.GetValueOrDefault("barCodeStart")), int.Parse(ConfigSettings.GetValueOrDefault("barCodeLength")), DataBuffer);
 
                         } else if (PlcResult == 0 && !S7.GetBitAt(Buffer, 0, 0)) { processing = 0;
                         } else if (PlcResult != 0) { WriteLogFile("Query Requested PLC Error: " + PlcResult.ToString() + " ->" + PLCclient.ErrorText(PlcResult) + ": " + ByteArrayToString(Buffer)); }
@@ -83,7 +84,7 @@ namespace SprayingCabineService
                     //Check ScanCode
                     if (processing == 10 && BarCodeResult == 0) {
                         processing = 20;
-                        barCode = Encoding.ASCII.GetString(Buffer);
+                        barCode = Encoding.ASCII.GetString(DataBuffer);
                         WriteLogFile("PLC BarCode Loaded: " + barCode);
                     } else if (processing == 10 && BarCodeResult != 0) { processing = 0; WriteLogFile("ScanCode Requested PLC Error: " + BarCodeResult.ToString() + " ->" + PLCclient.ErrorText(BarCodeResult) + ": " + ByteArrayToString(Buffer)); }
 
