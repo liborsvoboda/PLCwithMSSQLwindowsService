@@ -51,8 +51,9 @@ namespace SprayingCabineService
                         //WriteLogFile("PLC Connected");
                         processing = 5;
                     } else if (processing == 0 && ConnectionResult != 0) {
+                        PLCclient.Disconnect();
                         processing = 0;
-                        WriteLogFile("PLC Connection Error: " + ConnectionResult.ToString() + " ->" + PLCclient.ErrorText(ConnectionResult));
+                        if (ConnectionResult > 0) { WriteLogFile("PLC Connection Error: " + ConnectionResult.ToString() + " ->" + PLCclient.ErrorText(ConnectionResult)); }
                         ConnectionResult = PLCclient.ConnectTo(ConfigSettings.GetValueOrDefault("plcAddress"), 0, 0);
                     }
 
@@ -75,8 +76,14 @@ namespace SprayingCabineService
                             DataBuffer = new byte[int.Parse(ConfigSettings.GetValueOrDefault("barCodeLength"))];
                             BarCodeResult = PLCclient.DBRead(2800, int.Parse(ConfigSettings.GetValueOrDefault("barCodeStart")), int.Parse(ConfigSettings.GetValueOrDefault("barCodeLength")), DataBuffer);
 
-                        } else if (PlcResult == 0 && !S7.GetBitAt(Buffer, 0, 0)) { processing = 0;
-                        } else if (PlcResult != 0) { WriteLogFile("Query Requested PLC Error: " + PlcResult.ToString() + " ->" + PLCclient.ErrorText(PlcResult) + ": " + ByteArrayToString(Buffer)); }
+                        } else if (PlcResult == 0 && !S7.GetBitAt(Buffer, 0, 0)) {
+                            ConnectionResult = -1;
+                            processing = 0;
+                        } else if (PlcResult != 0) {
+                            ConnectionResult = -1;
+                            processing = 0;
+                            WriteLogFile("Query Requested PLC Error: " + PlcResult.ToString() + " ->" + PLCclient.ErrorText(PlcResult) + ": " + ByteArrayToString(Buffer)); 
+                        }
                         
                     }
 
@@ -86,7 +93,12 @@ namespace SprayingCabineService
                         processing = 20;
                         barCode = Encoding.ASCII.GetString(DataBuffer);
                         WriteLogFile("PLC BarCode Loaded: " + barCode);
-                    } else if (processing == 10 && BarCodeResult != 0) { processing = 0; WriteLogFile("ScanCode Requested PLC Error: " + BarCodeResult.ToString() + " ->" + PLCclient.ErrorText(BarCodeResult) + ": " + ByteArrayToString(Buffer)); }
+                    } else if (processing == 10 && BarCodeResult != 0) {
+                        ConnectionResult = -1;
+                        processing = 0;
+                        WriteLogFile("ScanCode Requested PLC Error: " + BarCodeResult.ToString() + " ->" + PLCclient.ErrorText(BarCodeResult) + ": " + ByteArrayToString(Buffer));
+                        
+                    }
 
 
                     //Get Sql M3 Code
@@ -153,6 +165,8 @@ namespace SprayingCabineService
                         }
                         catch (Exception Ex) { WriteLogFile("PLC Write Error: Buffer: " + Buffer + Environment.NewLine + "message: "+ Ex.StackTrace); }
                         processing = 0;
+
+                        ConnectionResult = -1;
                     }
 
 
