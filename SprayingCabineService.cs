@@ -83,7 +83,7 @@ namespace SprayingCabineService
                     //Check ScanCode
                     if (processing == 10 && BarCodeResult == 0) {
                         processing = 20;
-                        barCode = S7.GetCharsAt(Buffer, 0, int.Parse(ConfigSettings.GetValueOrDefault("barCodeLength")));
+                        barCode = Encoding.ASCII.GetString(Buffer);
                         WriteLogFile("PLC BarCode Loaded: " + barCode);
                     } else if (processing == 10 && BarCodeResult != 0) { processing = 0; WriteLogFile("ScanCode Requested PLC Error: " + BarCodeResult.ToString() + " ->" + PLCclient.ErrorText(BarCodeResult) + ": " + ByteArrayToString(Buffer)); }
 
