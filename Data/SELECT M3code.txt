@@ -1,0 +1,38 @@
+SELECT TOP 1 
+      a.[name]
+     ,a.[code] as 'M3 Code'
+  FROM [PILM].[codebook].[product_type] a ,[PILM].[audit].[production__product] b
+  WHERE b.product_type_id = a.id
+  AND b.code = '4241307378'
+  
+YTWS.SQLA.Spraying.Cabine / PilM_Acc3ss!
+  
+  Hi Thomas, I updated the ticket with following.
+I have configured switch port 15 & 16 on TWSOTRSWT227 for VLAN490.
+two IP address that can be used for IPCs are as follows.
+for IPC1:
+IP Address: 10.147.236.110
+Subnet mask: 255.255.255.0
+Default Gateway: 10.147.236.254
+for IPC2:
+IP Address: 10.147.236.111
+Subnet mask: 255.255.255.0
+Default Gateway: 10.147.236.254
+
+DNS:  10.241.0.21 & 10.241.0.22
+
+YTWS.OTR.POSTRIK
+Password2025
+
+Mistni učet
+Postrik / heslo
+
+
+
+192.168.1.10\PROZAX
+Database: PXUY3
+salogin: sa / utbMitas
+login: prozax_utb / utbProzax
+
+
+
