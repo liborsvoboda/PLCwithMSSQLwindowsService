@@ -3,11 +3,8 @@ using Newtonsoft.Json;
 using Sharp7;
 using System.Data;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SprayingCabineService
 {
@@ -96,7 +93,7 @@ namespace SprayingCabineService
                     } else if (processing == 10 && BarCodeResult != 0) {
                         ConnectionResult = -1;
                         processing = 0;
-                        WriteLogFile("ScanCode Requested PLC Error: " + BarCodeResult.ToString() + " ->" + PLCclient.ErrorText(BarCodeResult) + ": " + ByteArrayToString(Buffer));
+                        WriteLogFile("ScanCode Requested PLC Error: " + BarCodeResult.ToString() + " ->" + PLCclient.ErrorText(BarCodeResult) + ": " + ByteArrayToString(DataBuffer));
                         
                     }
 
@@ -157,11 +154,7 @@ namespace SprayingCabineService
                                 Buffer = new byte[1]; Buffer[0] = 0x04;
                                 PlcResult = PLCclient.DBWrite(2800, 0, 1, Buffer);
                             }
-
-                            //Process Finished 
-                            //Buffer = new byte[1]; Buffer[0] = 0x00;
-                            //PlcResult = PLCclient.DBWrite(2800, 0, 1, Buffer);
-                            
+                           
                         }
                         catch (Exception Ex) { WriteLogFile("PLC Write Error: Buffer: " + Buffer + Environment.NewLine + "message: "+ Ex.StackTrace); }
                         processing = 0;

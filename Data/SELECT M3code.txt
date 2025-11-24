@@ -24,7 +24,9 @@ DNS:  10.241.0.21 & 10.241.0.22
 YTWS.OTR.POSTRIK
 Password2025
 
-Mistni učet
+Jump Station:
+10.147.236.111
+Mistni učet:
 Postrik / heslo
 
 
@@ -35,4 +37,17 @@ salogin: sa / utbMitas
 login: prozax_utb / utbProzax
 
 
+Kód postřiku první znak =            0 – bez vnějšího postřiku
+                                     1 – s vnějším postřikem
 
+ 
+
+Kód postřiku druhý znak =           1 –  černá barva
+                                    2 – transparentní barva
+
+ 
+
+Kód postřiku třetí znak =              1 – postřik všech pneu
+                                       2 – každá druhá
+                                       3 – každá třetí
+                                       N – každá n tá postříkaná
