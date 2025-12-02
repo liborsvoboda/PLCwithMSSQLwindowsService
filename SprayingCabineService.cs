@@ -21,6 +21,7 @@ namespace SprayingCabineService
         private string barCode = string.Empty;
         private DataTable dataTable = new DataTable();
         private string m3code = string.Empty;
+        private string m3name = string.Empty;
         private bool setOK = false;
 
         public SprayingCabineService(ILogger<SprayingCabineService> logger) { _logger = logger; }
@@ -59,7 +60,7 @@ namespace SprayingCabineService
                     if (processing == 5) {
                         //Load Start Request
                         Buffer = new byte[1];
-                        PlcResult = PLCclient.DBRead(2800, 0, 1, Buffer);
+                        PlcResult = PLCclient.DBRead(int.Parse(ConfigSettings.GetValueOrDefault("dbBlock")), 0, 1, Buffer);
 
 
                         /* Result.SerialNumber = S7.GetCharsAt(Buffer, 0, 12)  Result.TestResult = S7.GetIntAt(Buffer, 12) Result.LeakDetected = S7.GetRealAt(Buffer, 14) */
@@ -71,7 +72,7 @@ namespace SprayingCabineService
 
                             //Load ScanCode
                             DataBuffer = new byte[int.Parse(ConfigSettings.GetValueOrDefault("barCodeLength"))];
-                            BarCodeResult = PLCclient.DBRead(2800, int.Parse(ConfigSettings.GetValueOrDefault("barCodeStart")), int.Parse(ConfigSettings.GetValueOrDefault("barCodeLength")), DataBuffer);
+                            BarCodeResult = PLCclient.DBRead(int.Parse(ConfigSettings.GetValueOrDefault("dbBlock")), int.Parse(ConfigSettings.GetValueOrDefault("barCodeStart")), int.Parse(ConfigSettings.GetValueOrDefault("barCodeLength")), DataBuffer);
 
                         } else if (PlcResult == 0 && !S7.GetBitAt(Buffer, 0, 0)) {
                             ConnectionResult = -1;
@@ -106,13 +107,14 @@ namespace SprayingCabineService
                         try {
                                                        
                             if (cnn.State == ConnectionState.Open) {
-                                SqlDataAdapter mDataAdapter = new SqlDataAdapter(new SqlCommand("SELECT TOP 1 a.[code] as 'M3 Code' FROM [PILM].[codebook].[product_type] a ,[PILM].[audit].[production__product] b WHERE b.product_type_id = a.id AND b.code = '" + barCode + "'", cnn));
+                                SqlDataAdapter mDataAdapter = new SqlDataAdapter(new SqlCommand("SELECT TOP 1 a.[code] as 'M3 Code', a.[name] as 'Name' FROM [PILM].[codebook].[product_type] a ,[PILM].[audit].[production__product] b WHERE b.product_type_id = a.id AND b.code = '" + barCode + "'", cnn));
                                 dataTable.Clear();
                                 mDataAdapter.Fill(dataTable);
                                 m3code = dataTable.Rows[0].ItemArray[0].ToString();
+                                m3name = dataTable.Rows[0].ItemArray[1].ToString();
                                 cnn.Close();
                                 setOK = true;
-                                WriteLogFile("SQL M3code Query Found: " + m3code);
+                                WriteLogFile("SQL M3code Query Found: " + m3code  + Environment.NewLine + m3name);
                                 
                             } else { WriteLogFile("SQL M3code Query Error: Not connected"); setOK = false; }
                           
@@ -133,26 +135,39 @@ namespace SprayingCabineService
 
                                 // Set Empty M3 code
                                 Buffer = new byte[int.Parse(ConfigSettings.GetValueOrDefault("m3CodeLength"))];
-                                PlcResult = PLCclient.DBWrite(2800, int.Parse(ConfigSettings.GetValueOrDefault("m3CodeStart")), int.Parse(ConfigSettings.GetValueOrDefault("m3CodeLength")), Buffer);
+                                PlcResult = PLCclient.DBWrite(int.Parse(ConfigSettings.GetValueOrDefault("dbBlock")), int.Parse(ConfigSettings.GetValueOrDefault("m3CodeStart")), int.Parse(ConfigSettings.GetValueOrDefault("m3CodeLength")), Buffer);
+
+                                // Set Empty M3 name
+                                Buffer = new byte[int.Parse(ConfigSettings.GetValueOrDefault("m3NameLength"))];
+                                PlcResult = PLCclient.DBWrite(int.Parse(ConfigSettings.GetValueOrDefault("dbBlock")), int.Parse(ConfigSettings.GetValueOrDefault("m3NameStart")), int.Parse(ConfigSettings.GetValueOrDefault("m3NameLength")), Buffer);
 
                                 // Set M3 code
                                 Buffer = new byte[Encoding.ASCII.GetBytes(m3code).Length];
                                 Buffer = Encoding.ASCII.GetBytes(m3code);
-                                PlcResult = PLCclient.DBWrite(2800, int.Parse(ConfigSettings.GetValueOrDefault("m3CodeStart")), Encoding.ASCII.GetBytes(m3code).Length, Buffer);
+                                PlcResult = PLCclient.DBWrite(int.Parse(ConfigSettings.GetValueOrDefault("dbBlock")), int.Parse(ConfigSettings.GetValueOrDefault("m3CodeStart")), Encoding.ASCII.GetBytes(m3code).Length, Buffer);
+
+                                // Set M3 name
+                                Buffer = new byte[Encoding.ASCII.GetBytes(m3name).Length];
+                                Buffer = Encoding.ASCII.GetBytes(m3name);
+                                PlcResult = PLCclient.DBWrite(int.Parse(ConfigSettings.GetValueOrDefault("dbBlock")), int.Parse(ConfigSettings.GetValueOrDefault("m3NameStart")), Encoding.ASCII.GetBytes(m3name).Length, Buffer);
 
                                 //Set OK
                                 Buffer = new byte[1]; Buffer[0] = 0x02;
-                                PlcResult = PLCclient.DBWrite(2800, 0, 1, Buffer);
+                                PlcResult = PLCclient.DBWrite(int.Parse(ConfigSettings.GetValueOrDefault("dbBlock")), 0, 1, Buffer);
 
                             } else {
 
                                 // Set Empty M3 code
                                 Buffer = new byte[int.Parse(ConfigSettings.GetValueOrDefault("m3CodeLength"))];
-                                PlcResult = PLCclient.DBWrite(2800, int.Parse(ConfigSettings.GetValueOrDefault("m3CodeStart")), int.Parse(ConfigSettings.GetValueOrDefault("m3CodeLength")), Buffer);
+                                PlcResult = PLCclient.DBWrite(int.Parse(ConfigSettings.GetValueOrDefault("dbBlock")), int.Parse(ConfigSettings.GetValueOrDefault("m3CodeStart")), int.Parse(ConfigSettings.GetValueOrDefault("m3CodeLength")), Buffer);
+
+                                // Set Empty M3 name
+                                Buffer = new byte[int.Parse(ConfigSettings.GetValueOrDefault("m3NameLength"))];
+                                PlcResult = PLCclient.DBWrite(int.Parse(ConfigSettings.GetValueOrDefault("dbBlock")), int.Parse(ConfigSettings.GetValueOrDefault("m3NameStart")), int.Parse(ConfigSettings.GetValueOrDefault("m3NameLength")), Buffer);
 
                                 // Set NOK
                                 Buffer = new byte[1]; Buffer[0] = 0x04;
-                                PlcResult = PLCclient.DBWrite(2800, 0, 1, Buffer);
+                                PlcResult = PLCclient.DBWrite(int.Parse(ConfigSettings.GetValueOrDefault("dbBlock")), 0, 1, Buffer);
                             }
                            
                         }
@@ -196,6 +211,9 @@ namespace SprayingCabineService
                 ConfigSettings.Add(SettingData.Keys.ToList()[6].ToString(), SettingData.Values.ToList()[6].ToString());
                 ConfigSettings.Add(SettingData.Keys.ToList()[7].ToString(), SettingData.Values.ToList()[7].ToString());
                 ConfigSettings.Add(SettingData.Keys.ToList()[8].ToString(), SettingData.Values.ToList()[8].ToString());
+                ConfigSettings.Add(SettingData.Keys.ToList()[9].ToString(), SettingData.Values.ToList()[9].ToString());
+                ConfigSettings.Add(SettingData.Keys.ToList()[10].ToString(), SettingData.Values.ToList()[10].ToString());
+                ConfigSettings.Add(SettingData.Keys.ToList()[11].ToString(), SettingData.Values.ToList()[11].ToString());
             } catch (Exception ex) { WriteLogFile("Data\\config.json Error"); }
         }
 

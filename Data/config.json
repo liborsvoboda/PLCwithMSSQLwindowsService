@@ -3,9 +3,12 @@
   "plcAddress": "10.147.236.110",
   "rack": 0,
   "slot": 0,
+  "dbBlock": 2800,
   "stepInterval": 1000,
   "barCodeStart": 4,
   "barCodeLength": 10,
   "m3CodeStart": 260,
-  "m3CodeLength": 50
+  "m3CodeLength": 50,
+  "m3NameStart": 400,
+  "m3NameLength": 100
 }
